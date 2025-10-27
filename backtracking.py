@@ -3,6 +3,7 @@
 
 def _es_consistente_con_valor(tablero_vars, fila, col, valor):
     """
+    asas
     Verifica si un valor es consistente con las asignaciones actuales 
         en la fila, columna y subcuadrícula de (fila, col).
     :param tablero_vars: Matriz 9x9 de objetos Variable.
