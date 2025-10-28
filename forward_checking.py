@@ -99,14 +99,6 @@ def _restaurar_dominios(tablero_vars, dominios_eliminados):
         tablero_vars[f][c].dominio.sort() # Opcional: mantener orden
 
 def resolver(tablero_vars, contador_valores=0, contador_variables=0):
-    """
-    Algoritmo de Forward Checking para resolver el CSP del Sudoku.
-    :param tablero_vars: Matriz 9x9 de objetos Variable.
-    :param contador_valores: Número de valores probados hasta ahora.
-    :param contador_variables: Número de variables seleccionadas para asignar hasta ahora.
-    :return: (True, contador_valores_final, contador_variables_final) si encuentra una solución,
-             (False, contador_valores_final, contador_variables_final) en caso contrario.
-    """
     for i in range(9):
         for j in range(9):
             if not tablero_vars[i][j].fija and tablero_vars[i][j].valor == 0:
@@ -115,15 +107,13 @@ def resolver(tablero_vars, contador_valores=0, contador_variables=0):
                 for valor in var_actual.dominio[:]:
                     contador_valores += 1
                     if _es_consistente_con_valor(tablero_vars, i, j, valor):
-                        var_actual.set_valor(valor)
+                        var_actual.valor = valor
                         dominios_eliminados, consistent = _propagar_dominios(tablero_vars, i, j, valor)
                         if consistent:
                             solucion_encontrada, contador_valores, contador_variables = resolver(tablero_vars, contador_valores, contador_variables)
                             if solucion_encontrada:
                                 return True, contador_valores, contador_variables
-                            _restaurar_dominios(tablero_vars, dominios_eliminados)
-                        else:
-                            _restaurar_dominios(tablero_vars, dominios_eliminados)
-                        var_actual.reset_valor()
+                        _restaurar_dominios(tablero_vars, dominios_eliminados)
+                        var_actual.valor = 0
                 return False, contador_valores, contador_variables
     return True, contador_valores, contador_variables

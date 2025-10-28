@@ -174,7 +174,43 @@ def main():
                         print('Hay que cargar un sudoku')
                     else:                        
                         print("AC3")                        
-                        #aquí llamar al AC3    
+                        #aquí llamar al AC3
+                        print("\nDOMINIOS ANTES DEL AC3")
+                        print("ID   Dominio:")
+                        for i in range(9):
+                            for j in range(9):
+                                var = tablero_vars[i][j]
+                                if not var.fija:
+                                    # Formato ID: fila*10 + col → 00, 01, ..., 88
+                                    id_celda = f"{i}{j}"
+                                    dominio_str = ", ".join(map(str, var.dominio))
+                                    print(f"{id_celda}  Dominio: {dominio_str}")
+                                else:
+                                    # Para celdas fijas, mostrar solo el valor
+                                    id_celda = f"{i}{j}"
+                                    print(f"{id_celda}  Dominio: {var.valor}")
+
+                                # Ejecutar AC3
+                                from ac3 import ejecutar_ac3
+                                consistente = ejecutar_ac3(tablero_vars)
+
+                        print("\nDOMINIOS DESPUÉS DEL AC3")
+                        print("ID   Dominio:")
+                        for i in range(9):
+                            for j in range(9):
+                                var = tablero_vars[i][j]
+                                if not var.fija:
+                                    id_celda = f"{i}{j}"
+                                    dominio_str = ", ".join(map(str, var.dominio))
+                                    print(f"{id_celda}  Dominio: {dominio_str}")
+                                else:
+                                    id_celda = f"{i}{j}"
+                                    print(f"{id_celda}  Dominio: {var.valor}")
+
+                        if not consistente:
+                            print("\nAC3 detectó INCONSISTENCIA: el sudoku no tiene solución.")
+                        else:
+                            print("\nAC3 completado exitosamente.")
                
         #limpiar pantalla
         screen.fill(GREY)

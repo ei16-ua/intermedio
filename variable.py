@@ -14,9 +14,6 @@ class Variable:
             self.dominio = list(range(1, 10))
             self.fija = False
 
-    def __str__(self):
-        return f"Var({self.fila},{self.col}) = {self.valor} | Fija: {self.fija} | Dom: {self.dominio}"
-
     def set_valor(self, val):
         """Asigna un valor y lo pone como único en el dominio."""
         self.valor = val
@@ -27,4 +24,4 @@ class Variable:
         """Resetea el valor a 0 y restaura el dominio si no es fija."""
         if not self.fija:
             self.valor = 0
-            self.dominio = list(range(1, 10))
+            #self.dominio = list(range(1, 10))

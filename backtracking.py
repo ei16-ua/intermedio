@@ -29,15 +29,6 @@ def _es_consistente_con_valor(tablero_vars, fila, col, valor):
     return True
 
 def resolver(tablero_vars, contador_valores=0, contador_variables=0):
-    """
-    Algoritmo de Backtracking para resolver el CSP del Sudoku.
-    :param tablero_vars: Matriz 9x9 de objetos Variable.
-    :param contador_valores: Número de valores probados hasta ahora.
-    :param contador_variables: Número de variables seleccionadas para asignar hasta ahora.
-    :return: (True, contador_valores_final, contador_variables_final) si encuentra 
-            una solución, (False, contador_valores_final, contador_variables_final) 
-            en caso contrario.
-    """
     for i in range(9):
         for j in range(9):
             if not tablero_vars[i][j].fija and tablero_vars[i][j].valor == 0:
@@ -46,10 +37,10 @@ def resolver(tablero_vars, contador_valores=0, contador_variables=0):
                 for valor in var.dominio[:]:
                     contador_valores += 1
                     if _es_consistente_con_valor(tablero_vars, i, j, valor):
-                        var.set_valor(valor)
+                        var.valor = valor
                         solucion_encontrada, contador_valores, contador_variables = resolver(tablero_vars, contador_valores, contador_variables)
                         if solucion_encontrada:
                             return True, contador_valores, contador_variables
-                        var.reset_valor()
+                        var.valor = 0
                 return False, contador_valores, contador_variables
     return True, contador_valores, contador_variables
