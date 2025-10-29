@@ -72,6 +72,19 @@ def pintarTablero(screen, fuenteSud, tablero, copTab):
     pygame.draw.rect(screen, GRIS_NORMAL, [MARGEN, MARGEN, N*(TAM+MARGEN), N*(TAM+MARGEN)],5)
 
 
+def imprimir_dominios(tablero_vars, titulo):
+    print(f"\n{titulo}")
+    print("ID   Dominio:")
+    for i in range(9):
+        for j in range(9):
+            var = tablero_vars[i][j]
+            id_celda = f"{i}{j}"
+            if var.fija:
+                print(f"{id_celda}  Dominio: {var.valor}")
+            else:
+                dominio_str = ", ".join(str(v) for v in var.dominio)
+                print(f"{id_celda}  Dominio: {dominio_str}")
+
 #########################################################################  
 # Principal
 #########################################################################
@@ -113,12 +126,22 @@ def main():
                 pos=pygame.mouse.get_pos()
                 if pulsaBoton(pos, botLoad):                                      
                     tablero=Tablero(file)
-                    copTab=copy.deepcopy(tablero)                                    
+                    copTab=copy.deepcopy(tablero)   
+
+                    tablero_vars = []
+                    for i in range(9):
+                        fila_vars = []
+                        for j in range(9):
+                            val_inicial = tablero.getCelda(i, j)
+                            fila_vars.append(Variable(i, j, val_inicial))
+                        fila_vars and tablero_vars.append(fila_vars)
+
                 if pulsaBoton(pos, botBK):                    
                     if tablero is None:
                         print('Hay que cargar un sudoku')
                     else:
                         print("BK")
+                        
 
                     tablero_vars = []
                     for i in range(9):
@@ -175,37 +198,13 @@ def main():
                     else:                        
                         print("AC3")                        
                         #aquí llamar al AC3
-                        print("\nDOMINIOS ANTES DEL AC3")
-                        print("ID   Dominio:")
-                        for i in range(9):
-                            for j in range(9):
-                                var = tablero_vars[i][j]
-                                if not var.fija:
-                                    # Formato ID: fila*10 + col → 00, 01, ..., 88
-                                    id_celda = f"{i}{j}"
-                                    dominio_str = ", ".join(map(str, var.dominio))
-                                    print(f"{id_celda}  Dominio: {dominio_str}")
-                                else:
-                                    # Para celdas fijas, mostrar solo el valor
-                                    id_celda = f"{i}{j}"
-                                    print(f"{id_celda}  Dominio: {var.valor}")
+                        imprimir_dominios(tablero_vars, "DOMINIOS ANTES DEL AC3")
 
-                                # Ejecutar AC3
-                                from ac3 import ejecutar_ac3
-                                consistente = ejecutar_ac3(tablero_vars)
+                        # Ejecutar AC3
+                        from ac3 import ejecutar_ac3
+                        consistente = ejecutar_ac3(tablero_vars)
 
-                        print("\nDOMINIOS DESPUÉS DEL AC3")
-                        print("ID   Dominio:")
-                        for i in range(9):
-                            for j in range(9):
-                                var = tablero_vars[i][j]
-                                if not var.fija:
-                                    id_celda = f"{i}{j}"
-                                    dominio_str = ", ".join(map(str, var.dominio))
-                                    print(f"{id_celda}  Dominio: {dominio_str}")
-                                else:
-                                    id_celda = f"{i}{j}"
-                                    print(f"{id_celda}  Dominio: {var.valor}")
+                        imprimir_dominios(tablero_vars, "DOMINIOS DESPUÉS DEL AC3")
 
                         if not consistente:
                             print("\nAC3 detectó INCONSISTENCIA: el sudoku no tiene solución.")
