@@ -44,3 +44,38 @@ def resolver(tablero_vars, contador_valores=0, contador_variables=0):
                         var.valor = 0
                 return False, contador_valores, contador_variables
     return True, contador_valores, contador_variables
+
+def seleccionar_variable_mrv(tablero_vars):
+    min_dominio = float('inf')
+    mejor_var = None
+    mejor_i, mejor_j = None, None
+    for i in range(9):
+        for j in range(9):
+            var = tablero_vars[i][j]
+            if not var.fija and var.valor == 0:
+                if len(var.dominio) < min_dominio:
+                    min_dominio = len(var.dominio)
+                    mejor_var = var
+                    mejor_i, mejor_j = i, j
+                    if min_dominio == 1:
+                        break
+        if min_dominio == 1:
+            break
+    if mejor_var is None:
+        return None, None, None
+    return mejor_i, mejor_j, mejor_var
+
+def resolver_mrv(tablero_vars, contador_valores=0, contador_variables=0):
+    i, j, var = seleccionar_variable_mrv(tablero_vars)
+    if var is None:
+        return True, contador_valores, contador_variables
+    contador_variables += 1
+    for valor in var.dominio[:]:
+        contador_valores += 1
+        if _es_consistente_con_valor(tablero_vars, i, j, valor):
+            var.valor = valor
+            solucion_encontrada, cv, cva = resolver(tablero_vars, contador_valores, contador_variables)
+            if solucion_encontrada:
+                return True, cv, cva
+            var.valor = 0
+    return False, contador_valores, contador_variables

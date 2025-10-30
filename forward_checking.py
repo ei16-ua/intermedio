@@ -2,15 +2,6 @@
 # Contiene la función de algoritmo Forward Checking
 
 def _es_consistente_con_valor(tablero_vars, fila, col, valor):
-    """
-    Verifica si un valor es consistente con las asignaciones actuales
-    en la fila, columna y subcuadrícula de (fila, col).
-    :param tablero_vars: Matriz 9x9 de objetos Variable.
-    :param fila: Fila de la variable a comprobar.
-    :param col: Columna de la variable a comprobar.
-    :param valor: Valor a probar.
-    :return: True si es consistente, False en caso contrario.
-    """
     for j in range(9):
         if j != col and tablero_vars[fila][j].valor == valor:
             return False
@@ -26,15 +17,6 @@ def _es_consistente_con_valor(tablero_vars, fila, col, valor):
 
 
 def _propagar_dominios(tablero_vars, fila, col, valor_asignado):
-    """
-    Elimina el valor_asignado de los dominios de las variables futuras
-    (no fijas y sin asignar) que estén en la misma fila, columna o subcuadrícula.
-    :param tablero_vars: Matriz 9x9 de objetos Variable.
-    :param fila: Fila de la variable recién asignada.
-    :param col: Columna de la variable recién asignada.
-    :param valor_asignado: Valor asignado a la variable (fila, col).
-    :return: diccionario con {(f, c): [valores_eliminados]}, para poder deshacer.
-    """
     dominios_eliminados = {}
     consistent = True
 
@@ -86,12 +68,6 @@ def _propagar_dominios(tablero_vars, fila, col, valor_asignado):
 
 
 def _restaurar_dominios(tablero_vars, dominios_eliminados):
-    """
-    Restaura los dominios de las variables según el diccionario
-    de valores eliminados.
-    :param tablero_vars: Matriz 9x9 de objetos Variable.
-    :param dominios_eliminados: diccionario con {(f, c): [valores_eliminados]}.
-    """
     for (f, c), vals in dominios_eliminados.items():
         for v in vals:
             if v not in tablero_vars[f][c].dominio:
@@ -121,3 +97,27 @@ def resolver(tablero_vars, contador_valores=0, contador_variables=0):
                         var_actual.valor = 0
                 return False, contador_valores, contador_variables
     return True, contador_valores, contador_variables
+
+
+from backtracking import seleccionar_variable_mrv
+
+def resolver_mrv(tablero_vars, contador_valores=0, contador_variables=0):
+    i, j, var_actual = seleccionar_variable_mrv(tablero_vars)
+    if var_actual is None:
+        return True, contador_valores, contador_variables  # solución encontrada
+
+    contador_variables += 1
+    for valor in var_actual.dominio[:]:
+        contador_valores += 1
+        if _es_consistente_con_valor(tablero_vars, i, j, valor):
+            var_actual.valor = valor
+            dominios_eliminados, consistent = _propagar_dominios(tablero_vars, i, j, valor)
+            if consistent:
+                solucion_encontrada, cv, cva = resolver(tablero_vars, contador_valores, contador_variables)
+                if solucion_encontrada:
+                    return True, cv, cva
+                _restaurar_dominios(tablero_vars, dominios_eliminados)
+            else:
+                _restaurar_dominios(tablero_vars, dominios_eliminados)
+            var_actual.valor = 0
+    return False, contador_valores, contador_variables

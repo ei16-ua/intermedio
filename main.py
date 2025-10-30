@@ -12,6 +12,11 @@ import sys
 from variable import Variable
 from backtracking import resolver as resolver_bt
 from forward_checking import resolver as resolver_fc
+from ac3 import ejecutar_ac3
+
+from backtracking import resolver_mrv as resolver_bt_mrv
+from forward_checking import resolver_mrv as resolver_fc_mrv
+
 
 GREY=(220,220,220)
 NEGRO=(10,10,10)
@@ -90,6 +95,13 @@ def imprimir_dominios(tablero_vars, titulo):
 #########################################################################
 def main():    
     
+    #Variables globales
+    global tablero_ac3
+    tablero_ac3 = None
+
+    global usar_mrv
+    usar_mrv = True
+
     pygame.init()
     reloj=pygame.time.Clock()
     
@@ -111,11 +123,11 @@ def main():
     botBK=pygame.Rect(anchoVentana-95, 203, 70, 50)
     botFC=pygame.Rect(anchoVentana-95, 333, 70, 50)
     botAC3=pygame.Rect(anchoVentana-95, 463, 70, 50)
+    botMRV = pygame.Rect(anchoVentana - 95, 130, 70, 50)
     
     game_over=False
     tablero=None
     copTab=None
-    
     
     while not game_over:
         for event in pygame.event.get():
@@ -124,7 +136,13 @@ def main():
             if event.type==pygame.MOUSEBUTTONUP:                
                 #obtener posición                               
                 pos=pygame.mouse.get_pos()
-                if pulsaBoton(pos, botLoad):                                      
+
+                if pulsaBoton(pos, botMRV):
+                    usar_mrv = not usar_mrv
+                    print(f"MRV {'activada' if usar_mrv else 'desactivada'}")
+
+                if pulsaBoton(pos, botLoad):
+                    tablero_ac3 = None                                      
                     tablero=Tablero(file)
                     copTab=copy.deepcopy(tablero)   
 
@@ -141,45 +159,59 @@ def main():
                         print('Hay que cargar un sudoku')
                     else:
                         print("BK")
-                        
 
-                    tablero_vars = []
-                    for i in range(9):
-                        fila_vars = []
-                        for j in range(9):
-                            val_inicial = tablero.getCelda(i, j)
-                            fila_vars.append(Variable(i, j, val_inicial))
-                        tablero_vars.append(fila_vars)
+                        if tablero_ac3 is not None:
+                            tablero_vars = copy.deepcopy(tablero_ac3)
+                            print("Usa los dominios de ac3")
+                        else:
+                            tablero_vars = []
+                            for i in range(9):
+                                fila_vars = []
+                                for j in range(9):
+                                    val_inicial = tablero.getCelda(i, j)
+                                    fila_vars.append(Variable(i, j, val_inicial))
+                                tablero_vars.append(fila_vars)
+                        if usar_mrv == False:
+                            exito, contador_valores_final, contador_variables_final = resolver_bt(tablero_vars, 0, 0)
+                        else:
+                            exito, contador_valores_final, contador_variables_final = resolver_bt_mrv(tablero_vars, 0, 0)
 
-                    # 2. Llamar al algoritmo de backtracking (desde backtracking.py)
-                    exito, contador_valores_final, contador_variables_final = resolver_bt(tablero_vars, 0, 0)
-                    if exito:
-                        print(f"Solución encontrada por Backtracking.")
-                        print(f"  - Valores probados: {contador_valores_final}")
-                        print(f"  - Variables exploradas: {contador_variables_final}")
-                        for i in range(9):
-                            for j in range(9):
-                                if not tablero_vars[i][j].fija:  
-                                    tablero.setCelda(i, j, str(tablero_vars[i][j].valor))
-                    else:
-                        print(f"No se encontró solución por Backtracking.")
-                        print(f"  - Valores probados: {contador_valores_final}")
-                        print(f"  - Variables exploradas: {contador_variables_final}")
+                        if exito:
+                            print(f"Solución encontrada por Backtracking.")
+                            print(f"  - Valores probados: {contador_valores_final}")
+                            print(f"  - Variables exploradas: {contador_variables_final}")
+                            for i in range(9):
+                                for j in range(9):
+                                    if not tablero_vars[i][j].fija:  
+                                        tablero.setCelda(i, j, str(tablero_vars[i][j].valor))
+                        else:
+                            print(f"No se encontró solución por Backtracking.")
+                            print(f"  - Valores probados: {contador_valores_final}")
+                            print(f"  - Variables exploradas: {contador_variables_final}")
+
                 elif pulsaBoton(pos, botFC):                    
                     if tablero is None:
                         print('Hay que cargar un sudoku')
                     else:
                         print("FC")
 
-                        tablero_vars = []
-                        for i in range(9):
-                            fila_vars = []
-                            for j in range(9):
-                                val_inicial = tablero.getCelda(i, j)
-                                fila_vars.append(Variable(i, j, val_inicial))
-                            tablero_vars.append(fila_vars)
+                        if tablero_ac3 is not None:
+                            tablero_vars = copy.deepcopy(tablero_ac3)
+                            print("Usa los dominios de ac3")
+                        else:
+                            tablero_vars = []
+                            for i in range(9):
+                                fila_vars = []
+                                for j in range(9):
+                                    val_inicial = tablero.getCelda(i, j)
+                                    fila_vars.append(Variable(i, j, val_inicial))
+                                tablero_vars.append(fila_vars)
                         
-                        exito, contador_valores_final, contador_variables_final = resolver_fc(tablero_vars, 0, 0)
+                        if usar_mrv == False:
+                            exito, contador_valores_final, contador_variables_final = resolver_fc(tablero_vars, 0, 0)
+                        else:
+                            exito, contador_valores_final, contador_variables_final = resolver_fc_mrv(tablero_vars, 0, 0)
+                        
                         if exito:
                             print(f"Solución encontrada por Forward Checking.")
                             print(f"  - Valores probados: {contador_valores_final}")
@@ -192,24 +224,31 @@ def main():
                             print(f"No se encontró solución por Forward Checking.")
                             print(f"  - Valores probados: {contador_valores_final}")
                             print(f"  - Variables exploradas: {contador_variables_final}")
+
                 elif pulsaBoton(pos, botAC3):
                     if tablero is None:
                         print('Hay que cargar un sudoku')
                     else:                        
-                        print("AC3")                        
-                        #aquí llamar al AC3
+                        print("AC3")
+                        tablero_vars = []
+                        for i in range(9):
+                            fila_vars = []
+                            for j in range(9):
+                                val_inicial = tablero.getCelda(i, j)
+                                fila_vars.append(Variable(i, j, val_inicial))
+                            tablero_vars.append(fila_vars)                        
                         imprimir_dominios(tablero_vars, "DOMINIOS ANTES DEL AC3")
 
-                        # Ejecutar AC3
-                        from ac3 import ejecutar_ac3
                         consistente = ejecutar_ac3(tablero_vars)
-
                         imprimir_dominios(tablero_vars, "DOMINIOS DESPUÉS DEL AC3")
 
                         if not consistente:
                             print("\nAC3 detectó INCONSISTENCIA: el sudoku no tiene solución.")
                         else:
                             print("\nAC3 completado exitosamente.")
+
+                        #global tablero_ac3
+                        tablero_ac3 = copy.deepcopy(tablero_vars)
                
         #limpiar pantalla
         screen.fill(GREY)
@@ -219,7 +258,8 @@ def main():
         pintarBoton(screen, fuenteBot, botLoad, "Load")
         pintarBoton(screen, fuenteBot, botBK, "BK")
         pintarBoton(screen, fuenteBot, botFC, "FC")
-        pintarBoton(screen, fuenteBot, botAC3, "AC3")        
+        pintarBoton(screen, fuenteBot, botAC3, "AC3")
+        pintarBoton(screen, fuenteBot, botMRV, "MRV: ON" if usar_mrv else "MRV: OFF")       
         #actualizar pantalla
         pygame.display.flip()
         reloj.tick(40)
