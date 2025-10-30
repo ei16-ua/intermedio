@@ -13,44 +13,12 @@ def _obtener_vecinos(i, j):
                 vecinos.add((r, c))
     return list(vecinos)
 
-'''
 def _revisar(tablero_vars, Xi, Xj):
     i1, j1 = Xi
     i2, j2 = Xj
     var_i = tablero_vars[i1][j1]
     var_j = tablero_vars[i2][j2]
 
-    if var_i.fija or var_j.fija:
-        return False
-
-    eliminado = False
-    nuevo_dominio = []
-
-    for x in var_i.dominio:
-        # x es válido si existe y en dominio de Xj tal que x != y
-        tiene_soporte = False
-        for y in var_j.dominio:
-            if x != y:
-                tiene_soporte = True
-                break
-        if tiene_soporte:
-            nuevo_dominio.append(x)
-        else:
-            eliminado = True
-
-    if eliminado:
-        var_i.dominio = nuevo_dominio
-
-    return eliminado
-'''
-
-def _revisar(tablero_vars, Xi, Xj):
-    i1, j1 = Xi
-    i2, j2 = Xj
-    var_i = tablero_vars[i1][j1]
-    var_j = tablero_vars[i2][j2]
-
-    # Si Xi es fija, no hay nada que recortar en su dominio
     if var_i.fija:
         return False
 
@@ -58,7 +26,6 @@ def _revisar(tablero_vars, Xi, Xj):
     nuevo_dominio = []
 
     if var_j.fija:
-        # Xj tiene un único valor; en Sudoku la restricción es Xi != Xj
         vj = var_j.valor
         for x in var_i.dominio:
             if x != vj:
@@ -66,7 +33,6 @@ def _revisar(tablero_vars, Xi, Xj):
             else:
                 eliminado = True
     else:
-        # Caso general: Xi conserva valores con soporte en dom(Xj), es decir, y != x
         for x in var_i.dominio:
             if any(y != x for y in var_j.dominio):
                 nuevo_dominio.append(x)
@@ -75,8 +41,8 @@ def _revisar(tablero_vars, Xi, Xj):
 
     if eliminado:
         var_i.dominio = nuevo_dominio
-    return eliminado
 
+    return eliminado
 
 def ejecutar_ac3(tablero_vars):
     cola = []

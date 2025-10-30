@@ -1,20 +1,7 @@
 # forward_checking.py
 # Contiene la función de algoritmo Forward Checking
 
-def _es_consistente_con_valor(tablero_vars, fila, col, valor):
-    for j in range(9):
-        if j != col and tablero_vars[fila][j].valor == valor:
-            return False
-    for i in range(9):
-        if i != fila and tablero_vars[i][col].valor == valor:
-            return False
-    inicio_fila, inicio_col = 3 * (fila // 3), 3 * (col // 3)
-    for i in range(inicio_fila, inicio_fila + 3):
-        for j in range(inicio_col, inicio_col + 3):
-            if (i != fila or j != col) and tablero_vars[i][j].valor == valor:
-                return False
-    return True
-
+from backtracking import _es_consistente_con_valor
 
 def _propagar_dominios(tablero_vars, fila, col, valor_asignado):
     dominios_eliminados = {}
@@ -72,7 +59,6 @@ def _restaurar_dominios(tablero_vars, dominios_eliminados):
         for v in vals:
             if v not in tablero_vars[f][c].dominio:
                 tablero_vars[f][c].dominio.append(v)
-        tablero_vars[f][c].dominio.sort() # Opcional: mantener orden
 
 def resolver(tablero_vars, contador_valores=0, contador_variables=0):
     for i in range(9):
@@ -102,22 +88,20 @@ def resolver(tablero_vars, contador_valores=0, contador_variables=0):
 from backtracking import seleccionar_variable_mrv
 
 def resolver_mrv(tablero_vars, contador_valores=0, contador_variables=0):
-    i, j, var_actual = seleccionar_variable_mrv(tablero_vars)
-    if var_actual is None:
-        return True, contador_valores, contador_variables  # solución encontrada
-
+    pos = seleccionar_variable_mrv(tablero_vars)
+    if pos[0] is None:
+        return True, contador_valores, contador_variables
+    i, j = pos
+    var = tablero_vars[i][j]
     contador_variables += 1
-    for valor in var_actual.dominio[:]:
+    for valor in var.dominio[:]:
         contador_valores += 1
-        if _es_consistente_con_valor(tablero_vars, i, j, valor):
-            var_actual.valor = valor
-            dominios_eliminados, consistent = _propagar_dominios(tablero_vars, i, j, valor)
-            if consistent:
-                solucion_encontrada, cv, cva = resolver(tablero_vars, contador_valores, contador_variables)
-                if solucion_encontrada:
-                    return True, cv, cva
-                _restaurar_dominios(tablero_vars, dominios_eliminados)
-            else:
-                _restaurar_dominios(tablero_vars, dominios_eliminados)
-            var_actual.valor = 0
+        var.valor = valor
+        dominios_eliminados, consistent = _propagar_dominios(tablero_vars, i, j, valor)
+        if consistent:
+            solucion_encontrada, cv, cva = resolver_mrv(tablero_vars, contador_valores, contador_variables)
+            if solucion_encontrada:
+                return True, cv, cva
+        _restaurar_dominios(tablero_vars, dominios_eliminados)
+        var.valor = 0
     return False, contador_valores, contador_variables

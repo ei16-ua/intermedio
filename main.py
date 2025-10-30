@@ -8,6 +8,7 @@ import copy
 from tablero import *
 from pygame.locals import *
 import sys
+import time
 
 from variable import Variable
 from backtracking import resolver as resolver_bt
@@ -171,10 +172,13 @@ def main():
                                     val_inicial = tablero.getCelda(i, j)
                                     fila_vars.append(Variable(i, j, val_inicial))
                                 tablero_vars.append(fila_vars)
+
+                        inicio = time.perf_counter()
                         if usar_mrv == False:
                             exito, contador_valores_final, contador_variables_final = resolver_bt(tablero_vars, 0, 0)
                         else:
                             exito, contador_valores_final, contador_variables_final = resolver_bt_mrv(tablero_vars, 0, 0)
+                        tiempo = time.perf_counter() - inicio
 
                         if exito:
                             print(f"Solución encontrada por Backtracking.")
@@ -188,6 +192,8 @@ def main():
                             print(f"No se encontró solución por Backtracking.")
                             print(f"  - Valores probados: {contador_valores_final}")
                             print(f"  - Variables exploradas: {contador_variables_final}")
+
+                        print(f"  - Tiempo: {tiempo:.4f} segundos")
 
                 elif pulsaBoton(pos, botFC):                    
                     if tablero is None:
@@ -207,11 +213,13 @@ def main():
                                     fila_vars.append(Variable(i, j, val_inicial))
                                 tablero_vars.append(fila_vars)
                         
+                        inicio = time.perf_counter()
                         if usar_mrv == False:
                             exito, contador_valores_final, contador_variables_final = resolver_fc(tablero_vars, 0, 0)
                         else:
                             exito, contador_valores_final, contador_variables_final = resolver_fc_mrv(tablero_vars, 0, 0)
-                        
+                        tiempo = time.perf_counter() - inicio
+
                         if exito:
                             print(f"Solución encontrada por Forward Checking.")
                             print(f"  - Valores probados: {contador_valores_final}")
@@ -224,6 +232,8 @@ def main():
                             print(f"No se encontró solución por Forward Checking.")
                             print(f"  - Valores probados: {contador_valores_final}")
                             print(f"  - Variables exploradas: {contador_variables_final}")
+
+                        print(f"  - Tiempo: {tiempo:.4f} segundos")
 
                 elif pulsaBoton(pos, botAC3):
                     if tablero is None:
@@ -239,14 +249,17 @@ def main():
                             tablero_vars.append(fila_vars)                        
                         imprimir_dominios(tablero_vars, "DOMINIOS ANTES DEL AC3")
 
+                        inicio = time.perf_counter()
                         consistente = ejecutar_ac3(tablero_vars)
                         imprimir_dominios(tablero_vars, "DOMINIOS DESPUÉS DEL AC3")
+                        tiempo = time.perf_counter() - inicio
 
                         if not consistente:
                             print("\nAC3 detectó INCONSISTENCIA: el sudoku no tiene solución.")
                         else:
                             print("\nAC3 completado exitosamente.")
 
+                        print(f"  - Tiempo: {tiempo:.4f} segundos")
                         #global tablero_ac3
                         tablero_ac3 = copy.deepcopy(tablero_vars)
                

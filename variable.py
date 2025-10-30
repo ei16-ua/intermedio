@@ -19,3 +19,12 @@ class Variable:
     def reset_valor(self):
         if not self.fija:
             self.valor = 0
+
+    def __deepcopy__(self, memo):
+        nueva = Variable.__new__(Variable)
+        nueva.fila = self.fila
+        nueva.col = self.col
+        nueva.fija = self.fija
+        nueva.valor = self.valor
+        nueva.dominio = list(self.dominio)
+        return nueva

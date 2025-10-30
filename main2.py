@@ -38,10 +38,10 @@ def imprimir_solucion(solucion, titulo):
 
 
 def ejecutar_algoritmo(nombre, resolver_func, tablero_vars):
-    inicio = time.time()
+    inicio = time.perf_counter()
     copia = copy.deepcopy(tablero_vars)
     exito, valores, variables = resolver_func(copia, 0, 0)
-    tiempo = (time.time() - inicio) * 1000  # ms
+    tiempo = (time.perf_counter() - inicio) * 1000  # ms
     if exito:
         solucion = vars_a_solucion(copia)
         return True, solucion, tiempo, valores, variables
@@ -54,9 +54,9 @@ def ejecutar_ac3_mas_algoritmo(nombre, resolver_func, tablero_original):
     if not ejecutar_ac3(tablero_vars):
         return False, None, 0, 0, 0, True  # inconsistente
 
-    inicio = time.time()
+    inicio = time.perf_counter()
     exito, valores, variables = resolver_func(tablero_vars, 0, 0)
-    tiempo = (time.time() - inicio) * 1000
+    tiempo = (time.perf_counter() - inicio) * 1000
     if exito:
         solucion = vars_a_solucion(tablero_vars)
         return True, solucion, tiempo, valores, variables, False
@@ -118,9 +118,9 @@ def main():
                 return f"{nombre:<16} {'-':<12} {'-':<10} {'-':<10} {estado:<10}"
             elif not exito:
                 estado = "FALLÓ"
-                return f"{nombre:<16} {t:<12.2f} {v:<10} {var:<10} {estado:<10}"
+                return f"{nombre:<16} {t:<12.4f} {v:<10} {var:<10} {estado:<10}"
             else:
-                return f"{nombre:<16} {t:<12.2f} {v:<10} {var:<10} {'OK':<10}"
+                return f"{nombre:<16} {t:<12.4f} {v:<10} {var:<10} {'OK':<10}"
 
         print(fmt_row("BK", exito1, t1, v1, var1))
         print(fmt_row("BK+MRV", exito2, t2, v2, var2))
