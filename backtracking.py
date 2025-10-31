@@ -20,7 +20,8 @@ def _es_consistente_con_valor(tablero_vars, fila, col, valor):
 def resolver(tablero_vars, contador_valores=0, contador_variables=0):
     for i in range(9):
         for j in range(9):
-            if not tablero_vars[i][j].fija and tablero_vars[i][j].valor == 0:
+            #not tablero_vars[i][j].fija and
+            if  tablero_vars[i][j].valor == 0:
                 var = tablero_vars[i][j]
                 contador_variables += 1
                 for valor in var.dominio[:]:

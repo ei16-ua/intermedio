@@ -80,16 +80,15 @@ def pintarTablero(screen, fuenteSud, tablero, copTab):
 
 def imprimir_dominios(tablero_vars, titulo):
     print(f"\n{titulo}")
-    print("ID   Dominio:")
     for i in range(9):
         for j in range(9):
             var = tablero_vars[i][j]
-            id_celda = f"{i}{j}"
+            id_celda = f"v[{i}][{j}]"
             if var.fija:
-                print(f"{id_celda}  Dominio: {var.valor}")
+                print(f"{id_celda} : [{var.valor}]")
             else:
                 dominio_str = ", ".join(str(v) for v in var.dominio)
-                print(f"{id_celda}  Dominio: {dominio_str}")
+                print(f"{id_celda} : [{dominio_str}]")
 
 #########################################################################  
 # Principal
@@ -182,16 +181,16 @@ def main():
 
                         if exito:
                             print(f"Solución encontrada por Backtracking.")
-                            print(f"  - Valores probados: {contador_valores_final}")
-                            print(f"  - Variables exploradas: {contador_variables_final}")
+                            print(f"  - Asignaciones: {contador_valores_final}")
+                            print(f"  - Recursiones: {contador_variables_final}")
                             for i in range(9):
                                 for j in range(9):
                                     if not tablero_vars[i][j].fija:  
                                         tablero.setCelda(i, j, str(tablero_vars[i][j].valor))
                         else:
                             print(f"No se encontró solución por Backtracking.")
-                            print(f"  - Valores probados: {contador_valores_final}")
-                            print(f"  - Variables exploradas: {contador_variables_final}")
+                            print(f"  - Asignaciones: {contador_valores_final}")
+                            print(f"  - Recursiones: {contador_variables_final}")
 
                         print(f"  - Tiempo: {tiempo:.4f} segundos")
 
@@ -222,16 +221,16 @@ def main():
 
                         if exito:
                             print(f"Solución encontrada por Forward Checking.")
-                            print(f"  - Valores probados: {contador_valores_final}")
-                            print(f"  - Variables exploradas: {contador_variables_final}")
+                            print(f"  - Asignaciones: {contador_valores_final}")
+                            print(f"  - Recursiones: {contador_variables_final}")
                             for i in range(9):
                                 for j in range(9):
                                     if not tablero_vars[i][j].fija:  # Solo actualizar las no fijas
                                         tablero.setCelda(i, j, str(tablero_vars[i][j].valor))
                         else:
                             print(f"No se encontró solución por Forward Checking.")
-                            print(f"  - Valores probados: {contador_valores_final}")
-                            print(f"  - Variables exploradas: {contador_variables_final}")
+                            print(f"  - Asignaciones: {contador_valores_final}")
+                            print(f"  - Recursiones: {contador_variables_final}")
 
                         print(f"  - Tiempo: {tiempo:.4f} segundos")
 
@@ -253,6 +252,8 @@ def main():
                         consistente = ejecutar_ac3(tablero_vars)
                         imprimir_dominios(tablero_vars, "DOMINIOS DESPUÉS DEL AC3")
                         tiempo = time.perf_counter() - inicio
+
+                        print("")
 
                         if not consistente:
                             print("\nAC3 detectó INCONSISTENCIA: el sudoku no tiene solución.")

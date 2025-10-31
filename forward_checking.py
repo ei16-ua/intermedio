@@ -63,7 +63,8 @@ def _restaurar_dominios(tablero_vars, dominios_eliminados):
 def resolver(tablero_vars, contador_valores=0, contador_variables=0):
     for i in range(9):
         for j in range(9):
-            if not tablero_vars[i][j].fija and tablero_vars[i][j].valor == 0:
+            #not tablero_vars[i][j].fija and
+            if  tablero_vars[i][j].valor == 0:
                 var_actual = tablero_vars[i][j]
                 contador_variables += 1
                 # Iterar sobre una copia del dominio ACTUAL (reducido por AC3 o podas previas)

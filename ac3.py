@@ -52,8 +52,11 @@ def ejecutar_ac3(tablero_vars):
                 for vecino in _obtener_vecinos(i, j):
                     cola.append(((i, j), vecino))
 
+    contador_podados = 0
+
     while cola:
         (Xi, Xj) = cola.pop(0)
+        #dominio_antes = len(tablero_vars[i][j].dominio)
         if _revisar(tablero_vars, Xi, Xj):
             i, j = Xi
             if len(tablero_vars[i][j].dominio) == 0:
