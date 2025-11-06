@@ -1,1 +1,1 @@
-# intermedio
+# intermedio de la práctica 1
